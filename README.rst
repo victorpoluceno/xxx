@@ -21,6 +21,11 @@ Running the event source backend::
   python event_source.py
 
 
+Download sample video::
+
+    wget http://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4 bunny.mp4
+
+
 Serving the example page::
 
   python -m SimpleHTTPServer 8080

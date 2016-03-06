@@ -1,0 +1,54 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <script src="http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js"></script>
+  <script src="jwplayer/jwplayer.js"></script>
+  <script>jwplayer.key="Ro/jtdCiYDxFVcZZWjlZzTJZeEirhqPBNvXsTA==";</script>
+</head>
+
+<body>
+  <div id="container"></div>
+  <script>
+    var buffer = [];
+    var sock = new SockJS('http://localhost:9999/echo');
+
+    sock.onopen = function() {
+      window.setInterval(flush, 250);
+    };
+         
+    sock.onclose = function() {
+      console.log('close');
+    };
+
+    var player = jwplayer("container");
+    player.setup({
+      file: "bunny.mp4",
+      width: 320,
+      height: 180,
+      title: 'XXX Example',
+      mediaid: '123456'
+    });
+
+    player.on('ready', function(event){
+      var dispatchEvent = {};
+      dispatchEvent['type'] = 'PLAYER_LOAD_TIME';
+      dispatchEvent['value'] = event.setupTime;
+      dispatchEvent['timestamp'] = new Date();
+      
+      extra = {};
+      extra['client_id'] = '0';
+      extra['user_agent'] = navigator.userAgent;
+      dispatchEvent['extra'] = extra;
+      buffer.push(dispatchEvent);
+    });
+
+    function flush(){
+      if (buffer.length > 0){
+        var event = JSON.stringify(buffer.pop());
+        console.log("Dispatching..." + event);
+        sock.send(event);  
+      }        
+    }
+  </script>
+</body>
+</html>

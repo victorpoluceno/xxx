@@ -23,6 +23,7 @@ class EchoConnection(SockJSConnection):
     def on_message(self, msg):
         info = self.info_map[self.session.session_id]
         event = json.loads(msg)
+        event['extra']['session_id'] = self.session.session_id
         event['extra']['ip'] = info.ip
         print('Got message, {0}'.format(event))
 

@@ -10,10 +10,10 @@
   <div id="container"></div>
   <script>
     var buffer = [];
-    var sock = new SockJS('http://localhost:9999/echo');
+    var sock = new SockJS('http://localhost:8080/echo');
 
     sock.onopen = function() {
-      window.setInterval(flush, 250);
+      window.setInterval(flush, 1000);
     };
 
     sock.onclose = function() {
@@ -47,11 +47,39 @@
       buffer.push(dispatchEvent);
     });
 
+    player.on('complete', function(event){
+      var dispatchEvent = {};
+      dispatchEvent['type'] = 'COMPLETE';
+      dispatchEvent['timestamp'] = new Date();
+      dispatchEvent['extra'] = getExtra();
+      buffer.push(dispatchEvent);
+    });
+
+    player.on('firstFrame', function(event){
+      var dispatchEvent = {};
+      dispatchEvent['type'] = 'PLAY_LOAD_TIME';
+      dispatchEvent['load_time'] = event.loadTime();
+      dispatchEvent['timestamp'] = new Date();
+      dispatchEvent['extra'] = getExtra();
+      buffer.push(dispatchEvent);
+    });
+
     function flush(){
       if (buffer.length > 0){
         var event = JSON.stringify(buffer.pop());
         console.log("Dispatching..." + event);
         sock.send(event);
+      } else {
+        var state = player.getState();
+        if (state != 'complete' && state != 'idle' && state != 'error') {
+          var dispatchEvent = {};
+          dispatchEvent['type'] = 'KEEP_ALIVE';
+          dispatchEvent['timestamp'] = new Date();
+          dispatchEvent['extra'] = getExtra();
+          var event = JSON.stringify(dispatchEvent);
+          console.log("Dispatching..." + event);
+          sock.send(event);
+        }
       }
     }
 
@@ -60,7 +88,7 @@
       extra['client_id'] = '0';
       extra['user_agent'] = navigator.userAgent;
       extra['media_id'] = player.getConfig()['mediaid'];
-      return extra
+      return extra;
     }
   </script>
 </body>

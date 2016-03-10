@@ -15,7 +15,7 @@
     sock.onopen = function() {
       window.setInterval(flush, 250);
     };
-         
+
     sock.onclose = function() {
       console.log('close');
     };
@@ -31,14 +31,19 @@
 
     player.on('ready', function(event){
       var dispatchEvent = {};
-      dispatchEvent['type'] = 'PLAYER_LOAD_TIME';
-      dispatchEvent['value'] = event.setupTime;
+      dispatchEvent['type'] = 'READY';
+      dispatchEvent['setup_time'] = event.setupTime;
       dispatchEvent['timestamp'] = new Date();
-      
-      extra = {};
-      extra['client_id'] = '0';
-      extra['user_agent'] = navigator.userAgent;
-      dispatchEvent['extra'] = extra;
+      dispatchEvent['extra'] = getExtra();
+      buffer.push(dispatchEvent);
+    });
+
+    player.on('bufferChange', function(event){
+      var dispatchEvent = {};
+      dispatchEvent['type'] = 'BUFFER_CHANGE';
+      dispatchEvent['position'] = event.position;
+      dispatchEvent['timestamp'] = new Date();
+      dispatchEvent['extra'] = getExtra();
       buffer.push(dispatchEvent);
     });
 
@@ -46,8 +51,16 @@
       if (buffer.length > 0){
         var event = JSON.stringify(buffer.pop());
         console.log("Dispatching..." + event);
-        sock.send(event);  
-      }        
+        sock.send(event);
+      }
+    }
+
+    function getExtra(){
+      extra = {};
+      extra['client_id'] = '0';
+      extra['user_agent'] = navigator.userAgent;
+      extra['media_id'] = player.getConfig()['mediaid'];
+      return extra
     }
   </script>
 </body>

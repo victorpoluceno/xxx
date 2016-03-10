@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8"/>
   <script src="http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js"></script>
-  <script src="jwplayer/jwplayer.js"></script>
+  <script src="{{ static_url("jwplayer/jwplayer.js") }}"></script>
   <script>jwplayer.key="Ro/jtdCiYDxFVcZZWjlZzTJZeEirhqPBNvXsTA==";</script>
 </head>
 
@@ -22,7 +22,7 @@
 
     var player = jwplayer("container");
     player.setup({
-      file: "bunny.mp4",
+      file: "{{ static_url("bunny.mp4") }}",
       width: 320,
       height: 180,
       title: 'XXX Example',

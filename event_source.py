@@ -1,7 +1,14 @@
+import os
 import json
 
 from tornado import web, ioloop
 from sockjs.tornado import SockJSRouter, SockJSConnection
+
+
+class IndexHandler(web.RequestHandler):
+
+    def get(self):
+        self.render('index.html')
 
 
 class EchoConnection(SockJSConnection):
@@ -26,7 +33,12 @@ if __name__ == '__main__':
 
     EchoRouter = SockJSRouter(EchoConnection, '/echo')
 
-    app = web.Application(EchoRouter.urls)
-    app.listen(9999)
+    settings = {
+        "debug": True,
+        "static_path": os.path.join(os.path.dirname(__file__), "static"),
+    }
+
+    app = web.Application([(r"/", IndexHandler)] + EchoRouter.urls, **settings)
+    app.listen(8080)
 
     ioloop.IOLoop.instance().start()

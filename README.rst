@@ -16,17 +16,12 @@ Setup::
   pip install -r requirements.txt
 
 
-Running the event source backend::
-
-  python event_source.py
-
-
 Download sample video::
 
     wget http://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4 bunny.mp4
 
 
-Serving the example page::
+Running the event source backend::
 
-  python -m SimpleHTTPServer 8080
+  python event_source.py
   open localhost:8080

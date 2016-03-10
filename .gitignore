@@ -65,3 +65,6 @@ target/
 *.mp4
 *.mov
 *.flv
+
+# Vagrant
+.vagrant

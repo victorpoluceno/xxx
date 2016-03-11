@@ -30,58 +30,49 @@
     });
 
     player.on('ready', function(event){
-      var dispatchEvent = {};
-      dispatchEvent['type'] = 'READY';
-      dispatchEvent['setup_time'] = event.setupTime;
-      dispatchEvent['timestamp'] = new Date();
-      dispatchEvent['extra'] = getExtra();
-      buffer.push(dispatchEvent);
+      dispatchEvent('READY', {
+        setup_time: event.setupTime
+      });
     });
 
     player.on('buffer', function(event){
-      var dispatchEvent = {};
-      dispatchEvent['type'] = 'BUFFER';
-      dispatchEvent['position'] = player.getPosition();
-      dispatchEvent['reason'] = event.reason;
-      dispatchEvent['timestamp'] = new Date();
-      dispatchEvent['extra'] = getExtra();
-      buffer.push(dispatchEvent);
+      dispatchEvent('BUFFER', {
+        position: player.getPosition(),
+        reason: event.reason
+      });
     });
 
     player.on('complete', function(event){
-      var dispatchEvent = {};
-      dispatchEvent['type'] = 'COMPLETE';
-      dispatchEvent['timestamp'] = new Date();
-      dispatchEvent['extra'] = getExtra();
-      buffer.push(dispatchEvent);
+      dispatchEvent('COMPLETE', {});
     });
 
     player.on('firstFrame', function(event){
-      var dispatchEvent = {};
-      dispatchEvent['type'] = 'PLAY_LOAD_TIME';
-      dispatchEvent['load_time'] = event.loadTime;
-      dispatchEvent['timestamp'] = new Date();
-      dispatchEvent['extra'] = getExtra();
-      buffer.push(dispatchEvent);
+      dispatchEvent('PLAY_LOAD_TIME', {
+        load_time: event.loadTime
+      });
     });
 
     function flush(){
       if (buffer.length > 0){
         var event = JSON.stringify(buffer.pop());
-        console.log("Dispatching..." + event);
         sock.send(event);
       } else {
         var state = player.getState();
         if (state != 'complete' && state != 'idle' && state != 'error') {
-          var dispatchEvent = {};
-          dispatchEvent['type'] = 'KEEP_ALIVE';
-          dispatchEvent['timestamp'] = new Date();
-          dispatchEvent['extra'] = getExtra();
-          var event = JSON.stringify(dispatchEvent);
-          console.log("Dispatching..." + event);
-          sock.send(event);
+          dispatchEvent('KEEP_ALIVE', {});
         }
       }
+    }
+
+    function dispatchEvent(type, fields){
+      var dispatchEvent = {};
+      dispatchEvent['type'] = type;
+      dispatchEvent['timestamp'] = new Date();
+      dispatchEvent['extra'] = getExtra();
+      for (var property in fields) {
+        dispatchEvent[property] = fields[property];
+      }
+      buffer.push(dispatchEvent);
     }
 
     function getExtra(){

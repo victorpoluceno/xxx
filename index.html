@@ -38,10 +38,11 @@
       buffer.push(dispatchEvent);
     });
 
-    player.on('bufferChange', function(event){
+    player.on('buffer', function(event){
       var dispatchEvent = {};
-      dispatchEvent['type'] = 'BUFFER_CHANGE';
-      dispatchEvent['position'] = event.position;
+      dispatchEvent['type'] = 'BUFFER';
+      dispatchEvent['position'] = player.getPosition();
+      dispatchEvent['reason'] = event.reason;
       dispatchEvent['timestamp'] = new Date();
       dispatchEvent['extra'] = getExtra();
       buffer.push(dispatchEvent);
@@ -58,7 +59,7 @@
     player.on('firstFrame', function(event){
       var dispatchEvent = {};
       dispatchEvent['type'] = 'PLAY_LOAD_TIME';
-      dispatchEvent['load_time'] = event.loadTime();
+      dispatchEvent['load_time'] = event.loadTime;
       dispatchEvent['timestamp'] = new Date();
       dispatchEvent['extra'] = getExtra();
       buffer.push(dispatchEvent);
